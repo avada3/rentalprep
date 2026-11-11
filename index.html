@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RentalPrep — Schedule E Workpaper Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b2430;--muted:#5d6672;--paper:#f4f2ec;--card:#ffffff;--line:#e3dfd5;--soft:#f9f8f4;
+  --accent:#1f5f4a;--accent-soft:#e6f0eb;--amber:#9a6412;--amber-soft:#fbf1df;--red:#a33a2b;--red-soft:#f8e6e2;
+  --blue:#2b5687;--blue-soft:#e7eef7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px;line-height:1.45}
+.num,input[type=number],td.n,th.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+header{background:var(--ink);color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.2px}
+header h1 span{color:#9fd3bd;font-weight:500}
+header p{margin:2px 0 0;color:#b9c1cb;font-size:13px}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 12px;font-weight:500}
+button:hover{border-color:#bdb7a9}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#18503e}
+header button{background:transparent;color:#fff;border-color:#4a5563}
+header button:hover{border-color:#9aa4b0}
+header button.primary,header button.primary:hover{background:#9fd3bd;border-color:#9fd3bd;color:var(--ink)}
+button.ghost{border:none;background:none;color:var(--muted);padding:4px 6px}
+button.ghost:hover{color:var(--red)}
+button.small{padding:5px 10px;font-size:13px}
+main{display:grid;grid-template-columns:minmax(380px,1fr) minmax(460px,1.25fr);gap:20px;padding:20px 28px 10px;max-width:1500px;margin:0 auto}
+@media(max-width:1050px){main{grid-template-columns:1fr;padding:16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px}
+.card h2{margin:0 0 4px;font-size:15px;font-weight:700}
+.card .sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+.step{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;align-items:center;justify-content:center;margin-right:8px;vertical-align:1px}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+.row.three{grid-template-columns:repeat(3,1fr)}
+@media(max-width:560px){.row,.row.three{grid-template-columns:1fr}}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+label small{font-weight:400}
+input,select{width:100%;font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid #9fd3bd;border-color:var(--accent)}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);font-weight:500;margin:0}
+.check input{width:auto}
+fieldset{border:none;border-top:1px solid var(--line);margin:16px 0 0;padding:14px 0 0}
+legend{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--accent);padding-right:8px}
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.ptab{border-radius:7px 7px 0 0;border-bottom:2px solid transparent;background:var(--soft)}
+.ptab.on{background:var(--accent-soft);border-color:var(--line);border-bottom:2px solid var(--accent);font-weight:700}
+.exp{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px}
+@media(max-width:560px){.exp{grid-template-columns:1fr}}
+.exp label .ln{display:inline-block;min-width:22px;color:var(--accent);font-family:"IBM Plex Mono",monospace}
+.note{background:var(--soft);border:1px dashed var(--line);border-radius:8px;padding:8px 11px;font-size:13px;color:var(--muted);margin-top:10px}
+.note b{color:var(--ink)}
+.assets{width:100%;border-collapse:collapse;margin-top:4px}
+.assets th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:4px 4px}
+.assets td{padding:3px 4px;vertical-align:middle}
+.assets{table-layout:fixed}
+.assets td:last-child,.assets th:last-child{width:30px}
+.assets th:nth-child(1){width:34%}.assets th:nth-child(2){width:27%}.assets th:nth-child(3){width:22%}
+.otabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px -4px 14px;flex-wrap:wrap}
+.otab{border:none;background:none;border-bottom:2px solid transparent;border-radius:0;padding:8px 10px;color:var(--muted)}
+.otab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.otab .badge{display:inline-block;background:var(--amber);color:#fff;font-size:11px;border-radius:9px;padding:0 6px;margin-left:5px}
+.sticky{position:sticky;top:14px}
+@media(max-width:1050px){.sticky{position:static}}
+.wpmeta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);margin-bottom:10px}
+table.wp{width:100%;border-collapse:collapse;font-size:13px}
+table.wp th,table.wp td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.wp th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:var(--soft)}
+table.wp td.n,table.wp th.n{text-align:right;white-space:nowrap}
+table.wp td.ln{color:var(--accent);font-family:"IBM Plex Mono",monospace;width:34px}
+table.wp tr.tot td{font-weight:700;border-top:2px solid var(--ink);background:var(--soft)}
+table.wp tr.key td{font-weight:700}
+table.wp tr.dim td{color:var(--muted)}
+.neg{color:var(--red)}
+.wrap{overflow-x:auto}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.kpi .v{font-size:19px;font-weight:600;font-family:"IBM Plex Mono",monospace;margin-top:2px}
+.flag{border-radius:9px;padding:10px 12px;margin-bottom:8px;font-size:13px;border-left:4px solid}
+.flag.warn{background:var(--amber-soft);border-color:var(--amber)}
+.flag.info{background:var(--blue-soft);border-color:var(--blue)}
+.flag.ok{background:var(--accent-soft);border-color:var(--accent)}
+.flag .t{font-weight:700;margin-bottom:2px}
+.flag .p{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+ol.docs{margin:0;padding-left:20px}
+ol.docs li{margin-bottom:6px}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.h3{font-size:13px;font-weight:700;margin:18px 0 6px}
+footer{max-width:1500px;margin:0 auto;padding:4px 28px 28px;color:var(--muted);font-size:12px}
+#modal{position:fixed;inset:0;background:rgba(20,25,32,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+#modal .box{background:#fff;border-radius:12px;padding:18px;max-width:640px;width:100%}
+#modal textarea{width:100%;height:260px;font-family:"IBM Plex Mono",monospace;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:8px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>RentalPrep <span>· Schedule E Workpaper Builder</span></h1>
+    <p>Turns a client's rental property records into a reviewed Schedule E, depreciation schedule, and passive loss summary.</p>
+  </div>
+  <div class="hbtns">
+    <button class="primary" id="btnSample">Load sample client</button>
+    <button id="btnClear">New workpaper</button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="card" id="clientCard">
+      <h2><span class="step">1</span>Client &amp; filing information</h2>
+      <p class="sub">Used for the passive activity loss limit (Form 8582) and the workpaper header.</p>
+      <div class="row">
+        <div><label>Client name</label><input data-k="client" placeholder="e.g., Smith household"></div>
+        <div><label>Prepared by</label><input data-k="preparer" placeholder="Your initials"></div>
+        <div><label>Tax year</label>
+          <select data-k="year" data-num><option>2024</option><option>2025</option><option>2026</option></select></div>
+        <div><label>Filing status</label><select data-k="status" id="statusSel"></select></div>
+        <div><label>Modified AGI <small>(for the $25,000 allowance)</small></label><input type="number" data-k="magi" data-num min="0" step="1"></div>
+        <div><label>Prior-year unallowed rental losses</label><input type="number" data-k="prior" data-num min="0" step="1"></div>
+      </div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:12px">
+        <label class="check"><input type="checkbox" data-k="active"> Client actively participates</label>
+        <label class="check"><input type="checkbox" data-k="rep"> Qualifies as a real estate professional</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">2</span>Rental properties</h2>
+      <p class="sub">One tab per property, the same way Schedule E uses columns A, B, C.</p>
+      <div class="ptabs" id="ptabs"></div>
+      <div id="pbody"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card sticky">
+      <h2><span class="step">3</span>Workpaper</h2>
+      <p class="sub">Updates as you type. Review the flags before the numbers go into tax software.</p>
+      <nav class="otabs" id="otabs"></nav>
+      <div id="out"></div>
+    </div>
+  </section>
+</main>
+
+<footer>RentalPrep is a student-built preparation aid for a tax associate's workflow. It does not replace professional judgment or tax software, and every output should be reviewed before filing. Depreciation uses regular MACRS (GDS); bonus depreciation, Section 179, dispositions, and the mid-quarter convention are flagged for review instead of calculated.</footer>
+
+<div id="modal"><div class="box">
+  <h2 style="margin:0 0 6px;font-size:15px">Copy this text</h2>
+  <p class="sub" style="margin:0 0 10px;color:var(--muted);font-size:13px">Your browser blocked automatic copying. The text is selected — press Ctrl+C (or ⌘+C).</p>
+  <textarea id="modalText" readonly></textarea>
+  <div class="actions"><button id="modalClose" class="primary">Done</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LS='rentalprep-v1';
+const EXP=[['advertising','Advertising',5],['auto','Auto and travel',6],['cleaning','Cleaning and maintenance',7],['commissions','Commissions',8],['insurance','Insurance',9],['legal','Legal and other professional fees',10],['mgmt','Management fees',11],['mortInt','Mortgage interest paid to banks',12],['otherInt','Other interest',13],['repairs','Repairs',14],['supplies','Supplies',15],['taxes','Taxes',16],['utilities','Utilities',17],['other','Other (e.g., HOA dues)',19]];
+const KINDS={'1':'Single family residence','2':'Multi-family residence','3':'Vacation / short-term rental','4':'Commercial'};
+const STATUS={single:['Single',25000,100000],mfj:['Married filing jointly',25000,100000],hoh:['Head of household',25000,100000],qss:['Qualifying surviving spouse',25000,100000],mfs_apart:['Married filing separately — lived apart all year',12500,50000],mfs_together:['Married filing separately — lived together',0,0]};
+const CLS={bldg:'Building (roof, HVAC)',f5:'5-yr (appliances, carpet)',f15:'15-yr (fence, driveway)'};
+const T5=[20,32,19.2,11.52,11.52,5.76];
+const T15=[5,9.5,8.55,7.7,6.93,6.23,5.9,5.9,5.91,5.9,5.91,5.9,5.91,5.9,5.91,2.95];
+const LETTERS='ABCDEFGHIJ';
+
+let S=load()||blank();
+let outTab='sche';
+let showProj=false;
+
+function blank(){return{year:2025,client:'',preparer:'',status:'single',magi:0,active:true,rep:false,prior:0,props:[newProp(0)],cur:0}}
+function newProp(i){const e={};EXP.forEach(x=>e[x[0]]=0);return{name:'Property '+LETTERS[i],addr:'',kind:'1',fair:365,personal:0,rents:0,exp:e,bdate:'',price:0,closing:0,land:0,assets:[]}}
+function newAsset(){return{desc:'',cls:'bldg',date:'',cost:0}}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));return s&&s.props?s:null}catch(e){return null}}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function num(v){const n=parseFloat(String(v).replace(/[,$\s]/g,''));return isFinite(n)?n:0}
+function r0(n){return Math.round(n)}
+function fmt(n){n=r0(n);const s=Math.abs(n).toLocaleString('en-US');return n<0?'('+s+')':s}
+function money(n){n=r0(n);const s='$'+Math.abs(n).toLocaleString('en-US');return n<0?'('+s+')':s}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function ym(s){if(!s)return null;const p=s.split('-').map(Number);return p[0]&&p[1]?{y:p[0],m:p[1]}:null}
+function mlabel(s){const d=ym(s);if(!d)return '—';return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.m-1]+' '+d.y}
+
+function slMM(basis,life,y0,m,T){
+  if(!(basis>0)||T<y0)return[0,0];
+  const annual=basis/life;let acc=0,cur=0;
+  for(let y=y0;y<=T;y++){
+    let d=y===y0?annual*(12.5-m)/12:annual;
+    d=Math.max(0,Math.min(d,basis-acc));
+    if(y===T)cur=d;else acc+=d;
+  }
+  return[acc,cur];
+}
+function tbl(basis,table,y0,T){
+  if(!(basis>0)||T<y0)return[0,0];
+  let acc=0,cur=0;
+  for(let i=0;i<table.length;i++){const y=y0+i;if(y>T)break;const d=basis*table[i]/100;if(y===T)cur=d;else acc+=d}
+  return[acc,cur];
+}
+function life(P){return P.kind==='4'?39:27.5}
+function bldgBasis(P){return Math.max(0,num(P.price)+num(P.closing)-num(P.land))}
+function depFor(a,P,T){
+  if(a.cls==='bldg')return slMM(a.basis,life(P),a.y,a.m,T);
+  return tbl(a.basis,a.cls==='f5'?T5:T15,a.y,T);
+}
+function assetList(P){
+  const L=[];const d=ym(P.bdate);const bb=bldgBasis(P);
+  if(bb>0&&d)L.push({desc:'Building'+(P.addr?' — '+P.addr:''),cls:'bldg',basis:bb,y:d.y,m:d.m,date:P.bdate,isBldg:true});
+  P.assets.forEach(x=>{const d=ym(x.date);if(d&&num(x.cost)>0)L.push({desc:x.desc||'Unnamed asset',cls:x.cls,basis:num(x.cost),y:d.y,m:d.m,date:x.date})});
+  return L;
+}
+function method(a,P){return a.cls==='bldg'?life(P)+'-yr SL, mid-month':a.cls==='f5'?'5-yr 200% DB, half-year':'15-yr 150% DB, half-year'}
+function calcProp(P,T){
+  const rows=assetList(P).map(a=>{const[p,c]=depFor(a,P,T);return{...a,prior:p,cur:c,method:method(a,P)}});
+  const dep=r0(rows.reduce((s,r)=>s+r.cur,0));
+  const lines={};EXP.forEach(x=>lines[x[0]]=r0(num(P.exp[x[0]])));
+  const cash=Object.values(lines).reduce((s,v)=>s+v,0);
+  const total=cash+dep;const rents=r0(num(P.rents));
+  return{rows,dep,lines,total,rents,net:rents-total};
+}
+function calcAll(){
+  const T=num(S.year);const props=S.props.map(P=>({P,c:calcProp(P,T)}));
+  const net=props.reduce((s,x)=>s+x.c.net,0);
+  const st=STATUS[S.status]||STATUS.single;const prior=r0(num(S.prior));const magi=r0(num(S.magi));
+  const pal={net,prior,combined:net-prior,max:st[1],thr:st[2],phase:0,allowance:0,allowed:0,carry:0,released:0,mode:''};
+  if(S.rep){pal.mode='rep';pal.allowed=net<0?-net:0;pal.carry=prior}
+  else if(pal.combined>=0){pal.mode='income';pal.released=prior;pal.allowed=net<0?-net:0}
+  else{
+    const loss=-pal.combined;
+    pal.phase=Math.max(0,(magi-st[2])*0.5);
+    pal.allowance=S.active&&st[1]>0?Math.max(0,st[1]-pal.phase):0;
+    pal.allowed=Math.min(loss,pal.allowance);pal.carry=loss-pal.allowed;pal.mode='loss';
+  }
+  pal.allowed=r0(pal.allowed);pal.carry=r0(pal.carry);pal.phase=r0(pal.phase);pal.allowance=r0(pal.allowance);
+  return{T,props,pal,magi,st};
+}
+
+function flags(R){
+  const F=[];const T=R.T;let pp=0,q4=0,bonus=[];
+  R.props.forEach(({P,c},i)=>{
+    const tag=LETTERS[i]+' · '+P.name;const fair=num(P.fair),pers=num(P.personal);
+    if(num(P.price)>0&&num(P.land)<=0)F.push(['warn',tag,'No land value entered','Land is not depreciable. Split the purchase price between land and building (the county assessor ratio is a common support) before depreciating.']);
+    if(c.rents>0&&fair<=0)F.push(['warn',tag,'Rents reported with zero fair rental days','Enter the days the property was rented at fair rental value (Schedule E line 2).']);
+    if(pers>Math.max(14,fair*0.1))F.push(['warn',tag,'Personal use exceeds the §280A threshold',`Personal use of ${pers} days is more than the greater of 14 days or 10% of fair rental days. Vacation home rules apply, so expenses must be allocated and the loss may be limited. This tool does not perform that allocation.`]);
+    else if(pers>0)F.push(['info',tag,'Some personal use reported','Personal use is under the §280A threshold, but expenses should still be allocated between rental and personal days.']);
+    if(P.kind==='3')F.push(['warn',tag,'Short-term rental','If the average customer stay is 7 days or less, the activity is not a rental activity under the passive rules (Reg. §1.469-1T(e)(3)) and the $25,000 allowance does not apply. Confirm average stay.']);
+    if(P.kind==='4')F.push(['info',tag,'Commercial property','Building and building improvements are depreciated over 39 years. Confirm the property has no residential units (80% test).']);
+    const d=ym(P.bdate);
+    if(c.rents>0&&!d)F.push(['warn',tag,'Building not in service','Rents are reported but no placed-in-service date was entered, so no building depreciation is being taken.']);
+    if(d&&d.y===T)F.push(['info',tag,'Property placed in service this year','Pull the closing disclosure. Some settlement charges are capitalized to basis, while prorated property taxes and prepaid interest may be deductible or adjustments instead.']);
+    if(d&&d.y>T)F.push(['info',tag,'Placed in service after the tax year','The building has no depreciation for this tax year.']);
+    const bb=bldgBasis(P);
+    const bi=P.assets.filter(a=>a.cls==='bldg'&&ym(a.date)&&ym(a.date).y===T).reduce((s,a)=>s+num(a.cost),0);
+    const rm=c.lines.repairs+c.lines.cleaning+bi;
+    if(bb>0&&bb<=1000000&&rm>0&&rm<=Math.min(10000,bb*0.02))F.push(['info',tag,'Small-taxpayer safe harbor may apply',`Repairs, maintenance, and building improvements total ${money(rm)}, which is within the lesser of $10,000 or 2% of building basis (${money(Math.min(10000,bb*0.02))}). Under Reg. §1.263(a)-3(h) the client can elect to deduct these instead of capitalizing.`]);
+    else if(c.rents>0&&c.lines.repairs>c.rents*0.15)F.push(['warn',tag,'Large repairs relative to rents','Repairs are over 15% of rents. Confirm none are improvements (betterment, restoration, or adaptation) that must be capitalized.']);
+    P.assets.forEach(a=>{const d=ym(a.date);if(!d||a.cls==='bldg'||num(a.cost)<=0)return;if(d.y===T){pp+=num(a.cost);if(d.m>=10)q4+=num(a.cost);bonus.push((a.desc||'asset')+' ('+LETTERS[i]+')')}});
+    P.assets.forEach(a=>{if(!ym(a.date)&&num(a.cost)>0)F.push(['warn',tag,'Asset missing a date',`"${a.desc||'Unnamed asset'}" has a cost but no placed-in-service date, so it is not being depreciated.`])});
+  });
+  if(pp>0&&q4/pp>0.4)F.push(['warn','All properties','Mid-quarter convention test',`${Math.round(q4/pp*100)}% of 5- and 15-year property placed in service this year was placed in service in Oct–Dec. Over 40% triggers the mid-quarter convention, but this tool uses half-year. Recompute in tax software.`]);
+  if(bonus.length)F.push(['info','All properties','Bonus depreciation election',`${bonus.join(', ')} may qualify for §168(k) bonus depreciation. This tool shows regular MACRS. Confirm whether the client takes bonus or elects out.`]);
+  const p=R.pal;
+  if(S.rep)F.push(['info','Passive losses','Real estate professional',"Confirm the 750-hour and more-than-half-of-personal-services tests and material participation. Prior-year suspended losses aren't automatically released, so review them separately."]);
+  else if(p.mode==='loss'){
+    if(!S.active)F.push(['warn','Passive losses','No active participation','Without active participation there is no $25,000 special allowance, so the full loss is suspended unless the client has other passive income.']);
+    else if(p.phase>0)F.push(['info','Passive losses','Allowance phased out by MAGI',`MAGI is ${money(R.magi)}. The special allowance is reduced by 50% of MAGI over ${money(R.st[2])}, a ${money(p.phase)} reduction.`]);
+    if(p.carry>0)F.push(['info','Passive losses','Suspended loss carries forward',`${money(p.carry)} of loss is not allowed this year. Record it on the carryover worksheet for next year.`]);
+  }
+  if(!F.length)F.push(['ok','All properties','No review flags','Nothing unusual was detected. Still tie each line to source documents.']);
+  return F;
+}
+
+function docs(R){
+  const D=[];const T=R.T;
+  D.push(`Rent roll or bank deposit summary for ${T}, plus any Form 1099-K or 1099-MISC received for rents`);
+  R.props.forEach(({P,c},i)=>{
+    const n=LETTERS[i]+' ('+(P.addr||P.name)+')';const d=ym(P.bdate);
+    if(c.lines.mortInt>0)D.push(`Form 1098 mortgage interest statement — property ${n}`);
+    if(c.lines.taxes>0)D.push(`Property tax bills and proof of payment for ${T} — property ${n}`);
+    if(c.lines.insurance>0)D.push(`Insurance declarations page — property ${n}`);
+    if(c.lines.mgmt>0)D.push(`Property manager year-end owner statement — property ${n}`);
+    if(c.lines.repairs>0)D.push(`Invoices for repairs over $500 — property ${n}`);
+    if(d&&d.y===T)D.push(`Closing disclosure / settlement statement from the purchase — property ${n}`);
+    if(num(P.price)>0&&num(P.land)<=0)D.push(`County assessor land and building values — property ${n}`);
+    P.assets.forEach(a=>{const ad=ym(a.date);if(ad&&ad.y===T&&num(a.cost)>0)D.push(`Invoice and proof of payment for "${a.desc||'asset'}" — property ${n}`)});
+    if(num(P.personal)>0)D.push(`Log of personal-use days — property ${n}`);
+  });
+  if(num(S.prior)>0)D.push(`Prior-year Form 8582 and passive loss carryover worksheet`);
+  if(!R.props.some(x=>ym(x.P.bdate)))D.push('Depreciation schedule from the prior-year return');
+  return D;
+}
+
+function opts(map,sel){return Object.entries(map).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${esc(Array.isArray(v)?v[0]:v)}</option>`).join('')}
+function renderClient(){
+  document.getElementById('statusSel').innerHTML=opts(STATUS,S.status);
+  document.querySelectorAll('#clientCard [data-k]').forEach(el=>{const v=S[el.dataset.k];if(el.type==='checkbox')el.checked=!!v;else el.value=v===0&&el.type==='number'?'':v});
+}
+function renderTabs(){
+  document.getElementById('ptabs').innerHTML=S.props.map((P,i)=>`<button class="ptab small${i===S.cur?' on':''}" data-tab="${i}">${LETTERS[i]} · ${esc(P.name||'Untitled')}</button>`).join('')+(S.props.length<10?'<button class="small" id="addProp">+ Add property</button>':'');
+}
+function nv(v){return v?v:''}
+function renderProp(){
+  const P=S.props[S.cur];
+  const expH=EXP.map(([k,l,ln])=>`<div><label><span class="ln">${ln}</span>${l}</label><input type="number" min="0" step="1" data-p="exp.${k}" data-num value="${nv(P.exp[k])}"></div>`).join('');
+  const aH=P.assets.map((a,i)=>`<tr>
+    <td><input data-a="${i}" data-f="desc" placeholder="Description" value="${esc(a.desc)}"></td>
+    <td><select data-a="${i}" data-f="cls">${opts(CLS,a.cls)}</select></td>
+    <td><input type="month" data-a="${i}" data-f="date" value="${esc(a.date)}"></td>
+    <td><input type="number" min="0" step="1" data-a="${i}" data-f="cost" data-num placeholder="Cost" value="${nv(a.cost)}"></td>
+    <td><button class="ghost" data-del-asset="${i}" title="Remove">✕</button></td></tr>`).join('');
+  document.getElementById('pbody').innerHTML=`
+  <fieldset style="border-top:none;padding-top:6px;margin-top:4px"><legend>Property</legend>
+    <div class="row">
+      <div><label>Nickname</label><input data-p="name" value="${esc(P.name)}"></div>
+      <div><label>Address</label><input data-p="addr" placeholder="Street, city, state" value="${esc(P.addr)}"></div>
+      <div><label>Type of property <small>(line 1b)</small></label><select data-p="kind">${opts(KINDS,P.kind)}</select></div>
+      <div class="row" style="gap:10px">
+        <div><label>Fair rental days</label><input type="number" min="0" max="366" data-p="fair" data-num value="${nv(P.fair)}"></div>
+        <div><label>Personal use days</label><input type="number" min="0" max="366" data-p="personal" data-num value="${nv(P.personal)}"></div>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset><legend>Income</legend>
+    <div class="row"><div><label><span class="ln" style="color:var(--accent);font-family:'IBM Plex Mono'">3 </span> Rents received</label><input type="number" min="0" step="1" data-p="rents" data-num value="${nv(P.rents)}"></div></div>
+  </fieldset>
+  <fieldset><legend>Expenses — Schedule E lines 5–19</legend><div class="exp">${expH}</div>
+    <div class="note">Line 18 (depreciation) is calculated from the basis and assets below.</div></fieldset>
+  <fieldset><legend>Building basis</legend>
+    <div class="row">
+      <div><label>Placed in service (month)</label><input type="month" data-p="bdate" value="${esc(P.bdate)}"></div>
+      <div><label>Purchase price</label><input type="number" min="0" step="1" data-p="price" data-num value="${nv(P.price)}"></div>
+      <div><label>Capitalized closing costs</label><input type="number" min="0" step="1" data-p="closing" data-num value="${nv(P.closing)}"></div>
+      <div><label>Land value <small>(not depreciable)</small></label><input type="number" min="0" step="1" data-p="land" data-num value="${nv(P.land)}"></div>
+    </div>
+    <div class="note" id="basisNote"></div>
+  </fieldset>
+  <fieldset><legend>Improvements &amp; other depreciable assets</legend>
+    ${P.assets.length?`<div class="wrap"><table class="assets"><tr><th>Description</th><th>Class</th><th>In service</th><th>Cost</th><th></th></tr>${aH}</table></div>`:'<p class="sub" style="margin:0 0 8px">None yet. Add roofs, appliances, fences, and other capital improvements here.</p>'}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;flex-wrap:wrap">
+      <button class="small" id="addAsset">+ Add asset</button>
+      ${S.props.length>1?`<button class="small" id="delProp" style="color:var(--red)">Remove this property</button>`:''}
+    </div>
+  </fieldset>`;
+  renderBasisNote();
+}
+function renderBasisNote(){
+  const el=document.getElementById('basisNote');if(!el)return;const P=S.props[S.cur];const bb=bldgBasis(P);
+  el.innerHTML=`Depreciable building basis: <b class="num">${money(bb)}</b> &nbsp;·&nbsp; Recovery period: <b>${life(P)} years</b>, straight-line, mid-month convention`;
+}
+
+function renderOut(){
+  const R=calcAll();const F=flags(R);const warns=F.filter(f=>f[0]==='warn').length;
+  const tabs=[['sche','Schedule E'],['dep','Depreciation'],['pal','Passive loss'],['flags','Review flags'],['docs','Document request']];
+  document.getElementById('otabs').innerHTML=tabs.map(([k,l])=>`<button class="otab${k===outTab?' on':''}" data-out="${k}">${l}${k==='flags'&&warns?`<span class="badge">${warns}</span>`:''}</button>`).join('');
+  const meta=`<div class="wpmeta"><span><b>${esc(S.client||'Client name')}</b> · Tax year ${R.T}</span><span>Prepared by ${esc(S.preparer||'—')}</span></div>`;
+  let h='';
+  if(outTab==='sche')h=schedE(R);
+  else if(outTab==='dep')h=depH(R);
+  else if(outTab==='pal')h=palH(R);
+  else if(outTab==='flags')h=F.map(([lvl,p,t,m])=>`<div class="flag ${lvl}"><div class="p">${esc(p)}</div><div class="t">${esc(t)}</div>${esc(m)}</div>`).join('');
+  else h=`<p class="sub">Generated from what has been entered. Copy it into the client request email.</p><ol class="docs">${docs(R).map(d=>`<li>${esc(d)}</li>`).join('')}</ol><div class="actions"><button class="primary" data-copy="docs">Copy request list</button></div>`;
+  document.getElementById('out').innerHTML=meta+h;
+}
+function cell(n){return `<td class="n${n<0?' neg':''}">${fmt(n)}</td>`}
+function schedE(R){
+  const ps=R.props,multi=ps.length>1;
+  const head=`<tr><th></th><th>Line</th>${ps.map((x,i)=>`<th class="n">${LETTERS[i]}</th>`).join('')}${multi?'<th class="n">Total</th>':''}</tr>`;
+  const line=(ln,label,f,cls='')=>{const v=ps.map(x=>f(x.c));return `<tr class="${cls}"><td class="ln">${ln}</td><td>${label}</td>${v.map(cell).join('')}${multi?cell(v.reduce((a,b)=>a+b,0)):''}</tr>`};
+  const info=(label,f)=>`<tr class="dim"><td class="ln"></td><td>${label}</td>${ps.map(x=>`<td class="n">${esc(f(x.P))}</td>`).join('')}${multi?'<td></td>':''}</tr>`;
+  let rows=info('Type (1b)',P=>P.kind)+info('Fair rental / personal days (2)',P=>num(P.fair)+' / '+num(P.personal));
+  rows+=line(3,'Rents received',c=>c.rents,'key');
+  EXP.forEach(([k,l,ln])=>{if(k==='other')rows+=line(18,'Depreciation',c=>c.dep);rows+=line(ln,l,c=>c.lines[k])});
+  rows+=line(20,'Total expenses',c=>c.total,'key');
+  rows+=line(21,'Income or (loss)',c=>c.net,'tot');
+  const p=R.pal;const net=ps.reduce((s,x)=>s+x.c.net,0);
+  const ded=net<0?-p.allowed:0;
+  return `<div class="kpis">
+    <div class="kpi"><div class="l">Net rental income (loss)</div><div class="v${net<0?' neg':''}">${money(net)}</div></div>
+    <div class="kpi"><div class="l">Depreciation (line 18)</div><div class="v">${money(ps.reduce((s,x)=>s+x.c.dep,0))}</div></div>
+    <div class="kpi"><div class="l">${net<0?'Loss allowed this year':'Prior losses released'}</div><div class="v">${money(net<0?p.allowed:p.released)}</div></div>
+  </div>
+  <div class="wrap"><table class="wp">${head}${rows}</table></div>
+  ${net<0?`<div class="note">Line 22, deductible rental real estate loss after limitation: <b class="num">${money(ded)}</b> in total. Allocate it across properties on Form 8582 Worksheet 5. Unallowed loss carried forward: <b class="num">${money(p.carry)}</b>.</div>`:''}
+  <div class="actions"><button class="primary" data-copy="sche">Copy for Excel</button></div>`;
+}
+function depH(R){
+  let h='';
+  R.props.forEach(({P,c},i)=>{
+    h+=`<div class="h3">${LETTERS[i]} · ${esc(P.name)}${P.addr?' — '+esc(P.addr):''}</div>`;
+    if(!c.rows.length){h+='<p class="sub">No depreciable assets entered.</p>';return}
+    h+=`<div class="wrap"><table class="wp"><tr><th>Asset</th><th>Method</th><th>In service</th><th class="n">Basis</th><th class="n">Prior accum.</th><th class="n">${R.T} dep.</th><th class="n">Remaining</th></tr>`+
+    c.rows.map(r=>`<tr><td>${esc(r.desc)}</td><td>${r.method}</td><td>${mlabel(r.date)}</td>${cell(r.basis)}${cell(r.prior)}${cell(r.cur)}${cell(r.basis-r.prior-r.cur)}</tr>`).join('')+
+    `<tr class="tot"><td colspan="3">Total</td>${cell(c.rows.reduce((s,r)=>s+r.basis,0))}${cell(c.rows.reduce((s,r)=>s+r.prior,0))}${cell(c.dep)}${cell(c.rows.reduce((s,r)=>s+r.basis-r.prior-r.cur,0))}</tr></table></div>`;
+  });
+  h+=`<div class="actions" style="justify-content:space-between"><label class="check"><input type="checkbox" id="projToggle"${showProj?' checked':''}> Show 10-year projection</label><button class="primary" data-copy="dep">Copy for Excel</button></div>`;
+  if(showProj){
+    const yrs=[...Array(10)].map((_,k)=>R.T+k);
+    h+=`<div class="h3">Projected depreciation, all properties</div><div class="wrap"><table class="wp"><tr><th>Asset</th>${yrs.map(y=>`<th class="n">${y}</th>`).join('')}</tr>`;
+    const tot=yrs.map(()=>0);
+    R.props.forEach(({P,c},i)=>c.rows.forEach(r=>{h+=`<tr><td>${LETTERS[i]} · ${esc(r.desc)}</td>`+yrs.map((y,k)=>{const v=depFor(r,P,y)[1];tot[k]+=v;return cell(v)}).join('')+'</tr>'}));
+    h+=`<tr class="tot"><td>Total</td>${tot.map(cell).join('')}</tr></table></div>`;
+  }
+  return h;
+}
+function palH(R){
+  const p=R.pal,st=R.st;
+  const rows=[
+    ['Current-year net rental income (loss)',p.net],
+    ['Prior-year unallowed losses',-p.prior],
+    ['Combined income (loss)',p.combined,'key']];
+  let extra='';
+  if(p.mode==='rep')extra=`<div class="flag info"><div class="t">Treated as nonpassive</div>Because the client qualifies as a real estate professional, the current-year loss of ${money(Math.max(0,-p.net))} is not limited here. Prior unallowed losses of ${money(p.prior)} are left for separate review.</div>`;
+  else if(p.mode==='income')extra=`<div class="flag ok"><div class="t">No limitation</div>Combined result is income, so all ${money(p.prior)} of prior unallowed losses is released this year.</div>`;
+  else{
+    rows.push(['Maximum special allowance ('+st[0]+')',st[1]]);
+    rows.push(['Phase-out: 50% of MAGI over '+money(st[2]),-p.phase]);
+    rows.push(['Special allowance available'+(S.active?'':' (no active participation)'),p.allowance,'key']);
+    rows.push(['Loss allowed this year',-p.allowed,'tot']);
+    rows.push(['Unallowed loss carried to next year',-p.carry,'key']);
+  }
+  return `<p class="sub">Simplified Form 8582 for rental real estate with active participation. Assumes no other passive income or losses.</p>
+  <div class="wrap"><table class="wp"><tr><th>Item</th><th class="n">Amount</th></tr>${rows.map(([l,v,c])=>`<tr class="${c||''}"><td>${l}</td>${cell(v)}</tr>`).join('')}</table></div>${extra?'<div style="margin-top:12px">'+extra+'</div>':''}`;
+}
+
+function tsv(kind){
+  const R=calcAll();const ps=R.props;const L=[];
+  const hdr=`${S.client||'Client'}\tTax year ${R.T}\tPrepared by ${S.preparer||''}`;
+  if(kind==='sche'){
+    L.push(hdr,'');L.push(['Line','Description',...ps.map((x,i)=>LETTERS[i]+' '+x.P.name),'Total'].join('\t'));
+    const add=(ln,l,f)=>{const v=ps.map(x=>f(x.c));L.push([ln,l,...v,v.reduce((a,b)=>a+b,0)].join('\t'))};
+    add(3,'Rents received',c=>c.rents);
+    EXP.forEach(([k,l,ln])=>{if(k==='other')add(18,'Depreciation',c=>c.dep);add(ln,l,c=>c.lines[k])});
+    add(20,'Total expenses',c=>c.total);add(21,'Income or (loss)',c=>c.net);
+    if(R.pal.net<0)L.push('','22\tDeductible loss after limitation (total)\t'+(-R.pal.allowed),'\tUnallowed loss carried forward\t'+R.pal.carry);
+  }else if(kind==='dep'){
+    L.push(hdr,'');L.push(['Property','Asset','Method','In service','Basis','Prior accumulated',R.T+' depreciation','Remaining basis'].join('\t'));
+    ps.forEach(({P,c},i)=>c.rows.forEach(r=>L.push([LETTERS[i]+' '+P.name,r.desc,r.method,mlabel(r.date),r0(r.basis),r0(r.prior),r0(r.cur),r0(r.basis-r.prior-r.cur)].join('\t'))));
+  }else{
+    L.push(`Hi${S.client?' '+S.client:''},`,'',`To prepare your ${R.T} rental property schedules, please send the following:`,'');
+    docs(R).forEach((d,i)=>L.push(`${i+1}. ${d}`));L.push('','Thank you!');
+  }
+  return L.join('\n');
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)}
+async function copy(text){
+  try{await navigator.clipboard.writeText(text);toast('Copied to clipboard')}
+  catch(e){const m=document.getElementById('modal'),ta=document.getElementById('modalText');ta.value=text;m.style.display='flex';ta.focus();ta.select()}
+}
+
+function onField(t){
+  const v=t.type==='checkbox'?t.checked:(t.dataset.num!==undefined?num(t.value):t.value);
+  if(t.dataset.k){S[t.dataset.k]=v}
+  else if(t.dataset.p){const P=S.props[S.cur],k=t.dataset.p.split('.');if(k.length===2)P[k[0]][k[1]]=v;else P[k[0]]=v;if(k[0]==='name')renderTabs();if(k[0]==='kind')renderBasisNote()}
+  else if(t.dataset.a!==undefined){S.props[S.cur].assets[+t.dataset.a][t.dataset.f]=v}
+  else return;
+  renderBasisNote();save();renderOut();
+}
+document.addEventListener('input',e=>onField(e.target));
+document.addEventListener('change',e=>{if(e.target.id==='projToggle'){showProj=e.target.checked;renderOut();return}if(e.target.tagName==='SELECT'||e.target.type==='checkbox')onField(e.target)});
+let clearArmed=null;
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.tab!==undefined){S.cur=+b.dataset.tab;save();renderTabs();renderProp()}
+  else if(b.id==='addProp'){S.props.push(newProp(S.props.length));S.cur=S.props.length-1;save();renderTabs();renderProp();renderOut()}
+  else if(b.id==='delProp'){S.props.splice(S.cur,1);S.cur=Math.max(0,S.cur-1);save();renderTabs();renderProp();renderOut()}
+  else if(b.id==='addAsset'){S.props[S.cur].assets.push(newAsset());save();renderProp();renderOut()}
+  else if(b.dataset.delAsset!==undefined){S.props[S.cur].assets.splice(+b.dataset.delAsset,1);save();renderProp();renderOut()}
+  else if(b.dataset.out){outTab=b.dataset.out;renderOut()}
+  else if(b.dataset.copy){copy(tsv(b.dataset.copy))}
+  else if(b.id==='btnSample'){S=sample();save();renderAll();toast('Sample client loaded')}
+  else if(b.id==='btnClear'){
+    if(clearArmed){clearTimeout(clearArmed);clearArmed=null;S=blank();save();renderAll();b.textContent='New workpaper';toast('Workpaper cleared')}
+    else{b.textContent='Click again to clear';clearArmed=setTimeout(()=>{b.textContent='New workpaper';clearArmed=null},3000)}
+  }
+  else if(b.id==='modalClose'){document.getElementById('modal').style.display='none'}
+});
+function sample(){
+  const a=newProp(0),b=newProp(1);
+  Object.assign(a,{name:'Glenview 2-flat',addr:'1418 Elm Ave, Glenview, IL',kind:'2',fair:365,personal:0,rents:38400,bdate:'2019-06',price:520000,closing:6500,land:130000});
+  Object.assign(a.exp,{advertising:250,cleaning:1200,insurance:2100,legal:650,mortInt:14800,repairs:3400,supplies:380,taxes:9600,utilities:2250});
+  a.assets=[{desc:'Roof replacement',cls:'bldg',date:'2023-09',cost:18500},{desc:'Kitchen appliances (2 units)',cls:'f5',date:'2025-03',cost:4800},{desc:'Fence and driveway',cls:'f15',date:'2025-11',cost:7200}];
+  Object.assign(b,{name:'Park Ridge condo',addr:'220 Main St #4B, Park Ridge, IL',kind:'1',fair:270,personal:0,rents:21600,bdate:'2025-04',price:265000,closing:4200,land:40000});
+  Object.assign(b.exp,{insurance:900,mgmt:2160,mortInt:7900,repairs:600,taxes:5100,other:4200});
+  return{year:2025,client:'Sample Client — Patel household',preparer:'AV',status:'mfj',magi:118000,active:true,rep:false,prior:2150,props:[a,b],cur:0};
+}
+function renderAll(){if(S.cur>=S.props.length)S.cur=0;renderClient();renderTabs();renderProp();renderOut()}
+renderAll();
+</script>
+</body>
+</html>
